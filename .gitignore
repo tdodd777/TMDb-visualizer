@@ -47,3 +47,10 @@ coverage/
 # Build artifacts
 build/
 .cache/
+
+# Documentation (exclude from repository)
+docs/
+*.md
+!README.md
+!CONTRIBUTING.md
+!LICENSE.md
