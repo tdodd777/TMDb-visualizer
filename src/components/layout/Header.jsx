@@ -9,12 +9,10 @@ const Header = () => {
   };
 
   const handleTopRated = () => {
-    goHome();
     browseTopRated();
   };
 
   const handlePopular = () => {
-    goHome();
     browsePopular();
   };
 

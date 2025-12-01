@@ -7,36 +7,27 @@ import SearchSkeleton from '../ui/SearchSkeleton';
 const SearchResults = () => {
   const { searchResults, isSearching, searchError, selectShow, searchQuery } = useApp();
   const [showResults, setShowResults] = useState(false);
-  const [showContainer, setShowContainer] = useState(false);
+  const [resultsKey, setResultsKey] = useState(0);
 
-  // First: transition from skeleton to container
+  // Trigger staggered animation when results are loaded
   useEffect(() => {
     if (!isSearching && searchResults.length > 0) {
-      const timer = setTimeout(() => setShowContainer(true), 100);
-      return () => {
-        clearTimeout(timer);
-        setShowContainer(false);
-      };
-    } else {
-      setShowContainer(false);
-    }
-  }, [isSearching, searchResults.length]);
-
-  // Second: trigger staggered animation
-  useEffect(() => {
-    if (showContainer && searchResults.length > 0) {
+      // Force animation reset by changing key and resetting showResults
+      setResultsKey(prev => prev + 1);
       setShowResults(false);
       const timer = setTimeout(() => setShowResults(true), 50);
       return () => clearTimeout(timer);
+    } else if (searchResults.length === 0) {
+      setShowResults(false);
     }
-  }, [showContainer, searchResults]);
+  }, [isSearching, searchResults]);
 
   // Return early if no search query - prevents skeleton from showing on homepage
   if (!searchQuery || searchQuery.length < 2) {
     return null;
   }
 
-  if (isSearching || !showContainer) {
+  if (isSearching) {
     return <SearchSkeleton />;
   }
 
@@ -76,7 +67,7 @@ const SearchResults = () => {
         Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div key={resultsKey} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {searchResults.map((show, index) => {
           const posterUrl = getImageUrl(show.poster_path, 'w342');
           const year = formatYear(show.first_air_date);

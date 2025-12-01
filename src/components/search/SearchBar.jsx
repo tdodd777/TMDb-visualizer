@@ -21,7 +21,7 @@ const SearchBar = () => {
     if (searchQuery && searchQuery !== localQuery) {
       setLocalQuery(searchQuery);
     }
-  }, [searchQuery]);
+  }, [searchQuery, localQuery]);
 
   // Debounced search - only trigger for user-typed queries, not browse queries
   useEffect(() => {
@@ -32,6 +32,7 @@ const SearchBar = () => {
 
     // Don't trigger searches for browse queries (Top 100, Popular Now, etc.)
     const isBrowseQuery = localQuery === 'Top 100 TV Shows' || localQuery === 'Popular Now';
+    const isSearchQueryBrowse = searchQuery === 'Top 100 TV Shows' || searchQuery === 'Popular Now';
 
     // Set new timeout
     if (localQuery.length >= 2 && !isBrowseQuery) {
@@ -41,9 +42,12 @@ const SearchBar = () => {
         setShowSuggestions(true);
         setSelectedIndex(-1);
       }, 500);
-    } else if (localQuery.length === 0 && searchQuery.length === 0) {
-      // Only clear if both local and global query are empty
-      clearSearch();
+    } else if (localQuery.length === 0) {
+      // Only clear search if searchQuery is not a browse query
+      // This prevents clearing when browse buttons set searchQuery externally
+      if (searchQuery && !isSearchQueryBrowse) {
+        clearSearch();
+      }
       setShowSuggestions(false);
       setSelectedIndex(-1);
     } else {
