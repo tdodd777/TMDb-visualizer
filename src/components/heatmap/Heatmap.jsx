@@ -28,7 +28,7 @@ const Heatmap = () => {
   return (
     <div>
       {/* Heatmap Grid First */}
-      <div className="bg-gray-800 border border-gray-700 rounded-lg p-2 mb-3">
+      <div className="bg-gray-800 border border-gray-700 rounded-lg p-2 mb-2 md:mb-3">
         <HeatmapGrid />
       </div>
 
@@ -37,17 +37,17 @@ const Heatmap = () => {
 
       {/* Stats */}
       {heatmapData.stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 md:mt-3">
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-2">
             <p className="text-xs text-gray-400 mb-0.5">Total Episodes</p>
-            <p className="text-lg font-bold text-white">
+            <p className="text-base md:text-lg font-bold text-white">
               {heatmapData.stats.totalEpisodes}
             </p>
           </div>
 
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-2">
             <p className="text-xs text-gray-400 mb-0.5">Average Rating</p>
-            <p className="text-lg font-bold text-yellow-500">
+            <p className="text-base md:text-lg font-bold text-yellow-500">
               ⭐ {heatmapData.stats.averageRating.toFixed(1)}
             </p>
           </div>
@@ -70,7 +70,7 @@ const Heatmap = () => {
           {heatmapData.stats.lowestRated && (
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-2">
               <p className="text-xs text-gray-400 mb-0.5">Lowest Rated</p>
-              <p className="text-base font-bold text-orange-500">
+              <p className="text-base md:text-lg font-bold text-orange-500">
                 {heatmapData.stats.lowestRated.rating.toFixed(1)}
               </p>
               <p className="text-xs text-gray-500">

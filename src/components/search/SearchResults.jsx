@@ -62,12 +62,12 @@ const SearchResults = () => {
   }
 
   return (
-    <div className="mt-6">
-      <p className="text-sm text-gray-400 mb-4">
+    <div className="mt-4 md:mt-6">
+      <p className="text-xs md:text-sm text-gray-400 mb-3 md:mb-4">
         Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
       </p>
 
-      <div key={resultsKey} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div key={resultsKey} className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
         {searchResults.map((show, index) => {
           const posterUrl = getImageUrl(show.poster_path, 'w342');
           const year = formatYear(show.first_air_date);
@@ -80,8 +80,8 @@ const SearchResults = () => {
               onClick={() => selectShow(show)}
               className={`
                 group bg-gray-800 rounded-lg overflow-hidden
-                border border-gray-700 hover:border-blue-500
-                transition-all hover:scale-105 transform text-left
+                border border-gray-700 hover:border-blue-500 active:border-blue-400
+                transition-all hover:scale-105 active:scale-100 transform text-left
                 ${showResults ? 'animate-card-fade-in' : ''}
               `}
               style={{
@@ -121,7 +121,7 @@ const SearchResults = () => {
                 )}
               </div>
 
-              <div className="p-3">
+              <div className="p-2 md:p-3">
                 <h3 className="font-semibold text-white group-hover:text-blue-400 transition-colors line-clamp-2 mb-1">
                   {show.name}
                 </h3>

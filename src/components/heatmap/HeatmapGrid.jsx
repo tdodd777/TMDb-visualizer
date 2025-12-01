@@ -2,16 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import EpisodeCell from './EpisodeCell';
 import HeatmapSkeleton from '../ui/HeatmapSkeleton';
+import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
 
 const HeatmapGrid = () => {
   const { heatmapData, selectEpisode } = useApp();
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
 
+  // Use Intersection Observer to detect when heatmap enters viewport
+  // Triggers animation when 20% of heatmap is visible
+  const { ref: heatmapRef, isVisible } = useIntersectionObserver({
+    threshold: 0.2,
+    rootMargin: '0px 0px -100px 0px', // Trigger slightly before fully visible
+    triggerOnce: true, // Only animate once per show
+  });
+
+  // Force re-render when heatmap data changes to reset animation
   useEffect(() => {
     if (heatmapData?.seasons?.length > 0) {
-      setIsLoaded(false);
-      const timer = setTimeout(() => setIsLoaded(true), 50);
-      return () => clearTimeout(timer);
+      setAnimationKey((prev) => prev + 1);
     }
   }, [heatmapData]);
 
@@ -22,16 +30,17 @@ const HeatmapGrid = () => {
   const { seasons, maxEpisodes } = heatmapData;
 
   return (
-    <div className="overflow-x-auto">
+    <div ref={heatmapRef} className="overflow-x-auto ios-smooth-scroll">
       <div className="inline-block min-w-full">
         <div
+          key={animationKey}
           className="grid gap-0.5"
           style={{
             gridTemplateColumns: `32px repeat(${maxEpisodes}, minmax(24px, 36px))`,
           }}
         >
           {/* Header row - Episode numbers */}
-          <div className="sticky left-0 bg-gray-800 z-10 h-5" /> {/* Empty corner cell */}
+          <div className="sticky left-0 bg-gray-800 z-10 h-5" />
           {Array.from({ length: maxEpisodes }, (_, i) => (
             <div
               key={`ep-${i + 1}`}
@@ -43,7 +52,7 @@ const HeatmapGrid = () => {
 
           {/* Season rows */}
           {seasons.map((season, rowIndex) => (
-            <React.Fragment key={season.seasonNumber}>
+            <React.Fragment key={`${season.seasonNumber}-${animationKey}`}>
               {/* Season label */}
               <div className="sticky left-0 bg-gray-800 z-10 flex items-center justify-center h-8">
                 <span className="text-xs font-semibold text-gray-400 whitespace-nowrap">
@@ -54,19 +63,31 @@ const HeatmapGrid = () => {
               {/* Episode cells */}
               {Array.from({ length: maxEpisodes }, (_, episodeIndex) => {
                 const episode = season.episodes[episodeIndex];
+                const delay = (rowIndex * 30) + (episodeIndex * 15);
+
                 return (
                   <div
-                    key={`s${season.seasonNumber}-e${episodeIndex + 1}`}
+                    key={`s${season.seasonNumber}-e${episodeIndex + 1}-${animationKey}`}
                     className="h-8"
                   >
-                    <EpisodeCell
-                      episode={episode}
-                      seasonNumber={season.seasonNumber}
-                      onClick={selectEpisode}
-                      rowIndex={rowIndex}
-                      colIndex={episodeIndex}
-                      isLoaded={isLoaded}
-                    />
+                    {episode ? (
+                      <div
+                        className={`w-full h-full animate-on-scroll ${isVisible ? 'is-visible' : ''}`}
+                        style={{
+                          animationDelay: isVisible ? `${delay}ms` : '0ms',
+                        }}
+                      >
+                        <EpisodeCell
+                          episode={episode}
+                          seasonNumber={season.seasonNumber}
+                          onClick={selectEpisode}
+                          rowIndex={rowIndex}
+                          colIndex={episodeIndex}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full bg-gray-800/30" />
+                    )}
                   </div>
                 );
               })}

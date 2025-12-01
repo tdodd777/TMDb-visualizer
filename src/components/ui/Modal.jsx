@@ -26,17 +26,17 @@ const Modal = ({ isOpen, onClose, episode }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-black/80"
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-gray-800 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl ios-smooth-scroll"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-gray-900/80 hover:bg-gray-900 rounded-full transition-colors"
+          className="absolute top-2 right-2 md:top-4 md:right-4 z-10 p-2 bg-gray-900/80 hover:bg-gray-900 active:bg-gray-900 rounded-full transition-colors tap-target"
           aria-label="Close modal"
         >
           <svg
@@ -56,7 +56,7 @@ const Modal = ({ isOpen, onClose, episode }) => {
 
         {/* Episode image */}
         {stillUrl && (
-          <div className="relative w-full h-64 md:h-80 bg-gray-900">
+          <div className="relative w-full h-48 md:h-64 lg:h-80 bg-gray-900">
             <img
               src={stillUrl}
               alt={episode.name}
@@ -67,9 +67,9 @@ const Modal = ({ isOpen, onClose, episode }) => {
         )}
 
         {/* Episode details */}
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           <div className="mb-4">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col xs:flex-row xs:items-start xs:justify-between gap-3 xs:gap-4">
               <div>
                 <p className="text-sm text-blue-400 font-medium mb-1">
                   {formatSeasonEpisode(episode.seasonNumber, episode.episodeNumber)}

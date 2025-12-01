@@ -16,13 +16,15 @@ function AppContent() {
       {!selectedShow ? (
         // Search view with smooth transitions
         <div className="animate-fade-in">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+          <div className="max-w-4xl mx-auto text-center mb-8 md:mb-12">
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-3 mobile-tight px-4">
               Discover Episode Ratings at a Glance
             </h2>
-            <p className="text-gray-400">
+            <p className="text-sm md:text-base text-gray-400 px-4 leading-relaxed mb-8">
               Search for your favorite TV series and visualize episode ratings as an interactive heatmap.
-              See which episodes are fan favorites and which ones missed the mark.
+              <span className="hidden md:inline">
+                {' '}See which episodes are fan favorites and which ones missed the mark.
+              </span>
             </p>
           </div>
 

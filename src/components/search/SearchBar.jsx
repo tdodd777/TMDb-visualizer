@@ -129,7 +129,7 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="relative max-w-2xl mx-auto">
+    <div className="relative max-w-2xl mx-auto mb-6">
       <div className="relative">
         {/* Search icon */}
         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -160,8 +160,9 @@ const SearchBar = () => {
           onChange={(e) => setLocalQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => localQuery.length >= 2 && suggestions.length > 0 && setShowSuggestions(true)}
-          placeholder="Search for a TV series... (e.g., Breaking Bad, Succession)"
+          placeholder="Search TV series..."
           className="w-full pl-12 pr-12 py-4 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          style={{ fontSize: '16px' }}
           autoComplete="off"
         />
 
@@ -169,7 +170,7 @@ const SearchBar = () => {
         {localQuery && (
           <button
             onClick={handleClear}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors tap-target"
             aria-label="Clear search"
           >
             <svg
@@ -192,7 +193,7 @@ const SearchBar = () => {
         {showSuggestions && suggestions.length > 0 && (
           <div
             ref={dropdownRef}
-            className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 max-h-96 overflow-y-auto"
+            className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 max-h-[60vh] md:max-h-96 overflow-y-auto ios-smooth-scroll"
           >
             {suggestions.map((show, index) => {
               const posterUrl = getImageUrl(show.poster_path, 'w185');
@@ -204,7 +205,7 @@ const SearchBar = () => {
                 <button
                   key={show.id}
                   onClick={() => handleSelectShow(show)}
-                  className={`w-full flex items-center gap-3 p-3 hover:bg-gray-700 transition-colors text-left ${
+                  className={`w-full flex items-center gap-3 p-3 hover:bg-gray-700 active:bg-gray-600 transition-colors text-left tap-target ${
                     isSelected ? 'bg-gray-700' : ''
                   }`}
                   onMouseEnter={() => setSelectedIndex(index)}

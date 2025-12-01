@@ -47,14 +47,17 @@ const TrendingCarousel = () => {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-6">
-      <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+    <div className="bg-gray-800 rounded-lg p-4 md:p-4 border border-gray-700 mb-4 md:mb-6">
+      <h2 className="text-lg md:text-xl font-bold text-white mb-2 md:mb-3 flex items-center gap-2">
         <span>🔥</span>
         <span>Trending This Week</span>
       </h2>
 
       <div className="relative">
-        <div className="flex gap-3 overflow-x-auto pb-3 pt-2 scrollbar-hide">
+        {/* Left fade indicator */}
+        <div className="scroll-fade-left md:hidden" />
+
+        <div className="flex gap-2 md:gap-3 overflow-x-auto pb-3 pt-2 scrollbar-hide scroll-snap-x ios-smooth-scroll">
           {trendingShows.map((show) => {
             const posterUrl = getImageUrl(show.poster_path, 'w342');
             const rating = formatRating(show.vote_average);
@@ -63,7 +66,7 @@ const TrendingCarousel = () => {
               <button
                 key={show.id}
                 onClick={() => selectShow(show)}
-                className="flex-shrink-0 w-32 group cursor-pointer transition-all duration-200 ease-out hover:-translate-y-2 hover:drop-shadow-xl hover:scale-[1.03]"
+                className="flex-shrink-0 w-28 md:w-32 group cursor-pointer transition-all duration-200 ease-out hover:-translate-y-2 hover:drop-shadow-xl hover:scale-[1.03] scroll-snap-start"
               >
                 <div className="relative rounded-lg overflow-hidden bg-gray-900 aspect-[2/3] border-2 border-transparent group-hover:border-blue-500 transition-colors">
                   {posterUrl ? (
@@ -115,8 +118,11 @@ const TrendingCarousel = () => {
           })}
         </div>
 
-        {/* Scroll hint */}
-        <div className="absolute top-1/2 right-0 -translate-y-1/2 bg-gradient-to-l from-gray-800 to-transparent w-12 h-full pointer-events-none" />
+        {/* Right fade indicator */}
+        <div className="scroll-fade-right md:hidden" />
+
+        {/* Desktop scroll hint */}
+        <div className="hidden md:block absolute top-1/2 right-0 -translate-y-1/2 bg-gradient-to-l from-gray-800 to-transparent w-12 h-full pointer-events-none" />
       </div>
     </div>
   );

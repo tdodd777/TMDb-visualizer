@@ -204,10 +204,10 @@ export const AppProvider = ({ children }) => {
   const browseTopRated = useCallback(async () => {
     // Save current state to navigation stack
     const currentState = {
-      type: 'home',
-      searchResults: [],
-      searchQuery: '',
-      selectedShow: null,
+      type: selectedShow ? 'show' : 'home',
+      searchResults,
+      searchQuery,
+      selectedShow,
     };
 
     setNavigationStack(prev => {
@@ -215,6 +215,14 @@ export const AppProvider = ({ children }) => {
       return [...newStack, currentState];
     });
     setNavigationIndex(prev => prev + 1);
+
+    // Clear selected show
+    setSelectedShow(null);
+    setShowDetails(null);
+    setSeasonsData([]);
+    setHeatmapData(null);
+    setWatchProviders(null);
+    setShowError(null);
 
     setIsSearching(true);
     setSearchError(null);
@@ -239,16 +247,16 @@ export const AppProvider = ({ children }) => {
     } finally {
       setIsSearching(false);
     }
-  }, [navigationIndex]);
+  }, [navigationIndex, selectedShow, searchResults, searchQuery]);
 
   // Browse popular shows
   const browsePopular = useCallback(async () => {
     // Save current state to navigation stack
     const currentState = {
-      type: 'home',
-      searchResults: [],
-      searchQuery: '',
-      selectedShow: null,
+      type: selectedShow ? 'show' : 'home',
+      searchResults,
+      searchQuery,
+      selectedShow,
     };
 
     setNavigationStack(prev => {
@@ -256,6 +264,14 @@ export const AppProvider = ({ children }) => {
       return [...newStack, currentState];
     });
     setNavigationIndex(prev => prev + 1);
+
+    // Clear selected show
+    setSelectedShow(null);
+    setShowDetails(null);
+    setSeasonsData([]);
+    setHeatmapData(null);
+    setWatchProviders(null);
+    setShowError(null);
 
     setIsSearching(true);
     setSearchError(null);
@@ -271,7 +287,7 @@ export const AppProvider = ({ children }) => {
     } finally {
       setIsSearching(false);
     }
-  }, [navigationIndex]);
+  }, [navigationIndex, selectedShow, searchResults, searchQuery]);
 
   // Get random show and select it
   const selectRandomShow = useCallback(async () => {

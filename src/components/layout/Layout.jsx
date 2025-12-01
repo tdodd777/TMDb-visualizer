@@ -33,7 +33,7 @@ const Layout = ({ children }) => {
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       <Header />
 
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 md:px-4 pt-2 pb-2 md:py-8">
         {children}
       </main>
 
