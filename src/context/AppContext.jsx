@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 import { searchShows as apiSearchShows, getShowDetails, getAllSeasons, getWatchProviders, getTopRatedShows, getPopularShows, getRandomShow } from '../services/tmdb';
 import { getCacheShow, setCacheShow, getCacheSeason, setCacheSeason, getCacheSearch, setCacheSearch } from '../services/cache';
 import { processHeatmapData } from '../services/ratingProcessor';
+import { logger } from '../utils/logger';
 
 const AppContext = createContext();
 
@@ -66,7 +67,7 @@ export const AppProvider = ({ children }) => {
       // Cache results
       setCacheSearch(query, data);
     } catch (error) {
-      console.error('Search error:', error);
+      logger.error('Search error:', error);
       setSearchError(error.message);
       setSearchResults([]);
     } finally {
@@ -139,7 +140,7 @@ export const AppProvider = ({ children }) => {
       setHeatmapData(processed);
 
     } catch (error) {
-      console.error('Error loading show:', error);
+      logger.error('Error loading show:', error);
       setShowError(error.message);
     } finally {
       setIsLoadingShow(false);
@@ -184,7 +185,7 @@ export const AppProvider = ({ children }) => {
       const allShows = pages.flatMap(page => page.results || []);
       setSearchResults(allShows.slice(0, 100));
     } catch (error) {
-      console.error('Browse top rated error:', error);
+      logger.error('Browse top rated error:', error);
       setSearchError(error.message);
       setSearchResults([]);
     } finally {
@@ -202,7 +203,7 @@ export const AppProvider = ({ children }) => {
       const data = await getPopularShows(1);
       setSearchResults(data.results || []);
     } catch (error) {
-      console.error('Browse popular error:', error);
+      logger.error('Browse popular error:', error);
       setSearchError(error.message);
       setSearchResults([]);
     } finally {
@@ -259,7 +260,7 @@ export const AppProvider = ({ children }) => {
       setHeatmapData(processed);
 
     } catch (error) {
-      console.error('Random show error:', error);
+      logger.error('Random show error:', error);
       setSearchError(error.message);
       setShowError(error.message);
     } finally {

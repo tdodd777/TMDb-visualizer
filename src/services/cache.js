@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 const CACHE_PREFIX = 'tmdb_';
 const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 const SEARCH_TTL = 60 * 60 * 1000; // 1 hour for search results
@@ -26,7 +28,7 @@ export function setCache(key, data, ttl = DEFAULT_TTL) {
     };
     localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(cacheItem));
   } catch (error) {
-    console.error('Error setting cache:', error);
+    logger.error('Error setting cache:', error);
   }
 }
 
@@ -52,7 +54,7 @@ export function getCache(key) {
 
     return cacheItem.data;
   } catch (error) {
-    console.error('Error getting cache:', error);
+    logger.error('Error getting cache:', error);
     return null;
   }
 }
@@ -65,7 +67,7 @@ export function removeCache(key) {
   try {
     localStorage.removeItem(CACHE_PREFIX + key);
   } catch (error) {
-    console.error('Error removing cache:', error);
+    logger.error('Error removing cache:', error);
   }
 }
 
@@ -81,7 +83,7 @@ export function clearAllCache() {
       }
     });
   } catch (error) {
-    console.error('Error clearing cache:', error);
+    logger.error('Error clearing cache:', error);
   }
 }
 
@@ -109,7 +111,7 @@ export function cleanExpiredCache() {
       }
     });
   } catch (error) {
-    console.error('Error cleaning cache:', error);
+    logger.error('Error cleaning cache:', error);
   }
 }
 

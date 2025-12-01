@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { logger } from '../utils/logger';
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL;
@@ -36,7 +37,7 @@ export const searchShows = async (query, page = 1) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error searching shows:', error);
+    logger.error('Error searching shows:', error);
     throw new Error(error.response?.data?.status_message || 'Failed to search shows');
   }
 };
@@ -48,7 +49,7 @@ export const getShowDetails = async (tvId) => {
     const response = await tmdbClient.get(`/tv/${tvId}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching show details:', error);
+    logger.error('Error fetching show details:', error);
     throw new Error(error.response?.data?.status_message || 'Failed to fetch show details');
   }
 };
@@ -60,7 +61,7 @@ export const getSeasonDetails = async (tvId, seasonNumber) => {
     const response = await tmdbClient.get(`/tv/${tvId}/season/${seasonNumber}`);
     return response.data;
   } catch (error) {
-    console.error(`Error fetching season ${seasonNumber}:`, error);
+    logger.error(`Error fetching season ${seasonNumber}:`, error);
     throw new Error(error.response?.data?.status_message || `Failed to fetch season ${seasonNumber}`);
   }
 };
@@ -75,7 +76,7 @@ export const getAllSeasons = async (tvId, totalSeasons) => {
     const seasons = await Promise.all(seasonPromises);
     return seasons;
   } catch (error) {
-    console.error('Error fetching all seasons:', error);
+    logger.error('Error fetching all seasons:', error);
     throw error;
   }
 };
@@ -89,7 +90,7 @@ export const getEpisodeDetails = async (tvId, seasonNumber, episodeNumber) => {
     );
     return response.data;
   } catch (error) {
-    console.error(`Error fetching episode S${seasonNumber}E${episodeNumber}:`, error);
+    logger.error(`Error fetching episode S${seasonNumber}E${episodeNumber}:`, error);
     throw new Error(error.response?.data?.status_message || 'Failed to fetch episode details');
   }
 };
@@ -101,7 +102,7 @@ export const getWatchProviders = async (tvId) => {
     const response = await tmdbClient.get(`/tv/${tvId}/watch/providers`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching watch providers:', error);
+    logger.error('Error fetching watch providers:', error);
     // Don't throw error, just return null if not available
     return null;
   }
@@ -116,7 +117,7 @@ export const getTopRatedShows = async (page = 1) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching top rated shows:', error);
+    logger.error('Error fetching top rated shows:', error);
     throw new Error(error.response?.data?.status_message || 'Failed to fetch top rated shows');
   }
 };
@@ -130,7 +131,7 @@ export const getPopularShows = async (page = 1) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching popular shows:', error);
+    logger.error('Error fetching popular shows:', error);
     throw new Error(error.response?.data?.status_message || 'Failed to fetch popular shows');
   }
 };
@@ -151,7 +152,7 @@ export const getRandomShow = async () => {
     const randomIndex = Math.floor(Math.random() * shows.length);
     return shows[randomIndex];
   } catch (error) {
-    console.error('Error fetching random show:', error);
+    logger.error('Error fetching random show:', error);
     throw new Error('Failed to fetch random show');
   }
 };
@@ -165,7 +166,7 @@ export const getTrendingShows = async (timeWindow = 'week') => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching trending shows:', error);
+    logger.error('Error fetching trending shows:', error);
     throw new Error(error.response?.data?.status_message || 'Failed to fetch trending shows');
   }
 };

@@ -9,12 +9,14 @@ npm install
 
 2. **Environment Variables**
 
-The `.env.local` file has already been created with your TMDb API credentials:
+Create a `.env.local` file in the project root with your TMDb API credentials:
 ```env
-VITE_TMDB_API_KEY=65cb1f43537b41477d403b203cde1464
+VITE_TMDB_API_KEY=your_api_key_here
 VITE_TMDB_BASE_URL=https://api.themoviedb.org/3
 VITE_TMDB_IMAGE_BASE_URL=https://image.tmdb.org/t/p
 ```
+
+**🔒 SECURITY WARNING**: Never commit your `.env.local` file or hardcode API keys in your codebase. The `.env.local` file is already included in `.gitignore` to prevent accidental commits. Get your API key from [TMDb API Settings](https://www.themoviedb.org/settings/api).
 
 3. **Start Development Server**
 ```bash

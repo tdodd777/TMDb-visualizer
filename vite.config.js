@@ -7,5 +7,9 @@ export default defineConfig({
     alias: {
       '@': '/src'
     }
+  },
+  esbuild: {
+    // Strip console logs and debugger statements in production
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   }
 })
