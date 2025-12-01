@@ -1,13 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { getImageUrl } from '../../services/tmdb';
 import { formatYear, formatRating } from '../../utils/formatters';
+import SearchSkeleton from '../ui/SearchSkeleton';
 
 const SearchResults = () => {
   const { searchResults, isSearching, searchError, selectShow, searchQuery } = useApp();
+  const [showResults, setShowResults] = useState(false);
+  const [showContainer, setShowContainer] = useState(false);
 
-  if (isSearching) {
-    return null; // Loading handled by SearchBar spinner
+  // First: transition from skeleton to container
+  useEffect(() => {
+    if (!isSearching && searchResults.length > 0) {
+      const timer = setTimeout(() => setShowContainer(true), 100);
+      return () => {
+        clearTimeout(timer);
+        setShowContainer(false);
+      };
+    } else {
+      setShowContainer(false);
+    }
+  }, [isSearching, searchResults.length]);
+
+  // Second: trigger staggered animation
+  useEffect(() => {
+    if (showContainer && searchResults.length > 0) {
+      setShowResults(false);
+      const timer = setTimeout(() => setShowResults(true), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [showContainer, searchResults]);
+
+  // Return early if no search query - prevents skeleton from showing on homepage
+  if (!searchQuery || searchQuery.length < 2) {
+    return null;
+  }
+
+  if (isSearching || !showContainer) {
+    return <SearchSkeleton />;
   }
 
   if (searchError) {
@@ -16,10 +46,6 @@ const SearchResults = () => {
         <p>{searchError}</p>
       </div>
     );
-  }
-
-  if (!searchQuery || searchQuery.length < 2) {
-    return null;
   }
 
   if (searchResults.length === 0) {
@@ -51,16 +77,26 @@ const SearchResults = () => {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {searchResults.map((show) => {
+        {searchResults.map((show, index) => {
           const posterUrl = getImageUrl(show.poster_path, 'w342');
           const year = formatYear(show.first_air_date);
           const rating = formatRating(show.vote_average);
+          const staggerDelay = index * 300;
 
           return (
             <button
               key={show.id}
               onClick={() => selectShow(show)}
-              className="group bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500 transition-all hover:scale-105 transform text-left"
+              className={`
+                group bg-gray-800 rounded-lg overflow-hidden
+                border border-gray-700 hover:border-blue-500
+                transition-all hover:scale-105 transform text-left
+                ${showResults ? 'animate-card-fade-in' : ''}
+              `}
+              style={{
+                animationDelay: showResults ? `${staggerDelay}ms` : '0ms',
+                opacity: showResults ? undefined : 0,
+              }}
             >
               <div className="relative aspect-[2/3] bg-gray-900">
                 {posterUrl ? (

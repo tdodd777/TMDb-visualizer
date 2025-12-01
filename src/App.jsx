@@ -14,8 +14,8 @@ function AppContent() {
   return (
     <Layout>
       {!selectedShow ? (
-        // Search view
-        <div>
+        // Search view with smooth transitions
+        <div className="animate-fade-in">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
               Discover Episode Ratings at a Glance
@@ -34,8 +34,8 @@ function AppContent() {
           <SearchResults />
         </div>
       ) : (
-        // Show heatmap view
-        <div>
+        // Show heatmap view with smooth transitions
+        <div className="animate-fade-in">
           <ShowMetadata />
           <Heatmap />
         </div>

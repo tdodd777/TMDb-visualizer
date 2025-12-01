@@ -1,8 +1,8 @@
-# TV Series Episode Heatmap
+# ShowGrid
 
 A React application that visualizes TV series episode ratings as an interactive, color-coded heatmap using data from The Movie Database (TMDb) API.
 
-![TV Series Heatmap](https://via.placeholder.com/800x400/1f2937/ffffff?text=TV+Series+Heatmap)
+![ShowGrid](https://via.placeholder.com/800x400/1f2937/ffffff?text=ShowGrid)
 
 ## Features
 
@@ -32,7 +32,7 @@ A React application that visualizes TV series episode ratings as an interactive,
 1. Clone the repository:
 ```bash
 git clone <your-repo-url>
-cd IMDB
+cd showgrid
 ```
 
 2. Install dependencies:
@@ -154,4 +154,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Acknowledgments
 
 - Data provided by [The Movie Database (TMDb)](https://www.themoviedb.org/)
-- Inspired by IMDb episode rating visualizations

@@ -99,7 +99,7 @@ Navigate to [http://localhost:5173](http://localhost:5173)
 ## Project Structure
 
 ```
-IMDB/
+showgrid/
 ├── public/              # Static assets
 │   └── images/          # TMDb logo
 ├── src/

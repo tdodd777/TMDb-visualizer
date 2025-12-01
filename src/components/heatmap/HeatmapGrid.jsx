@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import EpisodeCell from './EpisodeCell';
+import HeatmapSkeleton from '../ui/HeatmapSkeleton';
 
 const HeatmapGrid = () => {
   const { heatmapData, selectEpisode } = useApp();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (heatmapData?.seasons?.length > 0) {
+      setIsLoaded(false);
+      const timer = setTimeout(() => setIsLoaded(true), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [heatmapData]);
 
   if (!heatmapData || !heatmapData.seasons || heatmapData.seasons.length === 0) {
-    return null;
+    return <HeatmapSkeleton />;
   }
 
   const { seasons, maxEpisodes } = heatmapData;
@@ -32,7 +42,7 @@ const HeatmapGrid = () => {
           ))}
 
           {/* Season rows */}
-          {seasons.map((season) => (
+          {seasons.map((season, rowIndex) => (
             <React.Fragment key={season.seasonNumber}>
               {/* Season label */}
               <div className="sticky left-0 bg-gray-800 z-10 flex items-center justify-center h-8">
@@ -53,6 +63,9 @@ const HeatmapGrid = () => {
                       episode={episode}
                       seasonNumber={season.seasonNumber}
                       onClick={selectEpisode}
+                      rowIndex={rowIndex}
+                      colIndex={episodeIndex}
+                      isLoaded={isLoaded}
                     />
                   </div>
                 );

@@ -28,7 +28,36 @@ export function setCache(key, data, ttl = DEFAULT_TTL) {
     };
     localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(cacheItem));
   } catch (error) {
-    logger.error('Error setting cache:', error);
+    // Handle QuotaExceededError by clearing old cache and retrying
+    if (error.name === 'QuotaExceededError') {
+      logger.warn('localStorage quota exceeded, clearing old cache...');
+      cleanExpiredCache();
+
+      // If still exceeding quota, remove oldest cache entries
+      try {
+        const cacheItem = {
+          data,
+          timestamp: Date.now(),
+          ttl,
+        };
+        localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(cacheItem));
+      } catch (retryError) {
+        // Still failing, remove oldest entries until we have space
+        removeOldestCacheEntries(5);
+        try {
+          const cacheItem = {
+            data,
+            timestamp: Date.now(),
+            ttl,
+          };
+          localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(cacheItem));
+        } catch (finalError) {
+          logger.error('Unable to set cache even after cleanup:', finalError);
+        }
+      }
+    } else {
+      logger.error('Error setting cache:', error);
+    }
   }
 }
 
@@ -112,6 +141,48 @@ export function cleanExpiredCache() {
     });
   } catch (error) {
     logger.error('Error cleaning cache:', error);
+  }
+}
+
+/**
+ * Remove oldest cache entries (LRU eviction)
+ * @param {number} count - Number of entries to remove
+ */
+function removeOldestCacheEntries(count = 5) {
+  try {
+    const keys = Object.keys(localStorage);
+    const cacheEntries = [];
+
+    // Collect all cache entries with timestamps
+    keys.forEach(key => {
+      if (key.startsWith(CACHE_PREFIX)) {
+        const cached = localStorage.getItem(key);
+        if (cached) {
+          try {
+            const cacheItem = JSON.parse(cached);
+            cacheEntries.push({
+              key,
+              timestamp: cacheItem.timestamp || 0,
+            });
+          } catch (e) {
+            // Invalid entry, add for removal
+            cacheEntries.push({ key, timestamp: 0 });
+          }
+        }
+      }
+    });
+
+    // Sort by timestamp (oldest first)
+    cacheEntries.sort((a, b) => a.timestamp - b.timestamp);
+
+    // Remove oldest entries
+    const toRemove = cacheEntries.slice(0, count);
+    toRemove.forEach(entry => {
+      localStorage.removeItem(entry.key);
+      logger.info(`Removed old cache entry: ${entry.key}`);
+    });
+  } catch (error) {
+    logger.error('Error removing old cache entries:', error);
   }
 }
 

@@ -33,8 +33,8 @@ const TrendingCarousel = () => {
         <div className="flex gap-3 overflow-x-auto pb-2">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex-shrink-0 w-32">
-              <div className="bg-gray-700 animate-pulse rounded-lg aspect-[2/3]" />
-              <div className="bg-gray-700 animate-pulse h-4 rounded mt-2" />
+              <div className="animate-shimmer rounded-lg aspect-[2/3]" />
+              <div className="animate-shimmer h-4 rounded mt-2" />
             </div>
           ))}
         </div>
@@ -54,7 +54,7 @@ const TrendingCarousel = () => {
       </h2>
 
       <div className="relative">
-        <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
+        <div className="flex gap-3 overflow-x-auto pb-3 pt-2 scrollbar-hide">
           {trendingShows.map((show) => {
             const posterUrl = getImageUrl(show.poster_path, 'w342');
             const rating = formatRating(show.vote_average);
@@ -63,7 +63,7 @@ const TrendingCarousel = () => {
               <button
                 key={show.id}
                 onClick={() => selectShow(show)}
-                className="flex-shrink-0 w-32 group cursor-pointer transition-transform hover:scale-105"
+                className="flex-shrink-0 w-32 group cursor-pointer transition-all duration-200 ease-out hover:-translate-y-2 hover:drop-shadow-xl hover:scale-[1.03]"
               >
                 <div className="relative rounded-lg overflow-hidden bg-gray-900 aspect-[2/3] border-2 border-transparent group-hover:border-blue-500 transition-colors">
                   {posterUrl ? (
@@ -101,11 +101,11 @@ const TrendingCarousel = () => {
                 </div>
 
                 <div className="mt-2 text-left">
-                  <p className="text-sm font-medium text-white line-clamp-2 group-hover:text-blue-400 transition-colors">
+                  <p className="text-sm font-medium text-white line-clamp-2 h-10 group-hover:text-blue-400 transition-colors leading-tight">
                     {show.name}
                   </p>
                   {show.first_air_date && (
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-gray-500 mt-1">
                       {new Date(show.first_air_date).getFullYear()}
                     </p>
                   )}
@@ -118,16 +118,6 @@ const TrendingCarousel = () => {
         {/* Scroll hint */}
         <div className="absolute top-1/2 right-0 -translate-y-1/2 bg-gradient-to-l from-gray-800 to-transparent w-12 h-full pointer-events-none" />
       </div>
-
-      <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </div>
   );
 };

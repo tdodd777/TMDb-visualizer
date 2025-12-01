@@ -36,7 +36,9 @@ export const AppProvider = ({ children }) => {
   const [selectedEpisode, setSelectedEpisode] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Navigation history
+  // Navigation history (back/forward stack)
+  const [navigationStack, setNavigationStack] = useState([]); // Array of view states
+  const [navigationIndex, setNavigationIndex] = useState(-1); // Current position in stack
   const [previousView, setPreviousView] = useState(null); // 'search', 'top100', 'popular', or null
   const [previousResults, setPreviousResults] = useState([]);
   const [previousQuery, setPreviousQuery] = useState('');
@@ -46,6 +48,22 @@ export const AppProvider = ({ children }) => {
     if (!query || query.length < 2) {
       setSearchResults([]);
       return;
+    }
+
+    // Save current state to navigation stack before new search
+    if (searchResults.length > 0 || selectedShow) {
+      const currentState = {
+        type: selectedShow ? 'show' : 'search',
+        searchResults,
+        searchQuery,
+        selectedShow,
+      };
+
+      setNavigationStack(prev => {
+        const newStack = prev.slice(0, navigationIndex + 1);
+        return [...newStack, currentState];
+      });
+      setNavigationIndex(prev => prev + 1);
     }
 
     setIsSearching(true);
@@ -73,12 +91,28 @@ export const AppProvider = ({ children }) => {
     } finally {
       setIsSearching(false);
     }
-  }, []);
+  }, [navigationIndex, searchResults, searchQuery, selectedShow]);
 
   // Select a show and fetch all data
   const selectShow = useCallback(async (show) => {
-    // Save current view state before navigating
-    if (searchResults.length > 0) {
+    // Save current view state to navigation stack before navigating
+    if (searchResults.length > 0 || !selectedShow) {
+      const currentState = {
+        type: 'search',
+        searchResults,
+        searchQuery,
+        selectedShow: null,
+      };
+
+      // Add to navigation stack
+      setNavigationStack(prev => {
+        // Remove any forward history if we're not at the end
+        const newStack = prev.slice(0, navigationIndex + 1);
+        return [...newStack, currentState];
+      });
+      setNavigationIndex(prev => prev + 1);
+
+      // Keep legacy support
       setPreviousResults(searchResults);
       setPreviousQuery(searchQuery);
 
@@ -168,6 +202,20 @@ export const AppProvider = ({ children }) => {
 
   // Browse top rated shows
   const browseTopRated = useCallback(async () => {
+    // Save current state to navigation stack
+    const currentState = {
+      type: 'home',
+      searchResults: [],
+      searchQuery: '',
+      selectedShow: null,
+    };
+
+    setNavigationStack(prev => {
+      const newStack = prev.slice(0, navigationIndex + 1);
+      return [...newStack, currentState];
+    });
+    setNavigationIndex(prev => prev + 1);
+
     setIsSearching(true);
     setSearchError(null);
     setSearchQuery('Top 100 TV Shows');
@@ -191,10 +239,24 @@ export const AppProvider = ({ children }) => {
     } finally {
       setIsSearching(false);
     }
-  }, []);
+  }, [navigationIndex]);
 
   // Browse popular shows
   const browsePopular = useCallback(async () => {
+    // Save current state to navigation stack
+    const currentState = {
+      type: 'home',
+      searchResults: [],
+      searchQuery: '',
+      selectedShow: null,
+    };
+
+    setNavigationStack(prev => {
+      const newStack = prev.slice(0, navigationIndex + 1);
+      return [...newStack, currentState];
+    });
+    setNavigationIndex(prev => prev + 1);
+
     setIsSearching(true);
     setSearchError(null);
     setSearchQuery('Popular Now');
@@ -209,10 +271,24 @@ export const AppProvider = ({ children }) => {
     } finally {
       setIsSearching(false);
     }
-  }, []);
+  }, [navigationIndex]);
 
   // Get random show and select it
   const selectRandomShow = useCallback(async () => {
+    // Save current state to navigation stack
+    const currentState = {
+      type: selectedShow ? 'show' : 'home',
+      searchResults,
+      searchQuery,
+      selectedShow,
+    };
+
+    setNavigationStack(prev => {
+      const newStack = prev.slice(0, navigationIndex + 1);
+      return [...newStack, currentState];
+    });
+    setNavigationIndex(prev => prev + 1);
+
     setIsSearching(true);
     setSearchError(null);
     setIsLoadingShow(true);
@@ -267,7 +343,7 @@ export const AppProvider = ({ children }) => {
       setIsSearching(false);
       setIsLoadingShow(false);
     }
-  }, []);
+  }, [navigationIndex, selectedShow, searchResults, searchQuery]);
 
   // Reset show selection
   const resetShow = useCallback(() => {
@@ -282,8 +358,51 @@ export const AppProvider = ({ children }) => {
     setPreviousQuery('');
   }, []);
 
-  // Go back to previous view
+  // Go to home page (complete reset)
+  const goHome = useCallback(() => {
+    // Clear selected show
+    setSelectedShow(null);
+    setShowDetails(null);
+    setSeasonsData([]);
+    setHeatmapData(null);
+    setWatchProviders(null);
+    setShowError(null);
+
+    // Clear search state
+    setSearchQuery('');
+    setSearchResults([]);
+    setSearchError(null);
+    setIsSearching(false);
+
+    // Clear navigation history
+    setPreviousView(null);
+    setPreviousResults([]);
+    setPreviousQuery('');
+    setNavigationStack([]);
+    setNavigationIndex(-1);
+  }, []);
+
+  // Go back in navigation history
   const goBack = useCallback(() => {
+    // Use navigation stack if available
+    if (navigationIndex > 0) {
+      const prevState = navigationStack[navigationIndex - 1];
+      setNavigationIndex(prev => prev - 1);
+
+      // Restore state
+      setSearchResults(prevState.searchResults || []);
+      setSearchQuery(prevState.searchQuery || '');
+      setSelectedShow(prevState.selectedShow || null);
+      setShowDetails(null);
+      setSeasonsData([]);
+      setHeatmapData(null);
+      setWatchProviders(null);
+      setShowError(null);
+
+      return true;
+    }
+
+    // Fallback to legacy navigation
     if (previousView && previousResults.length > 0) {
       // Restore previous view state
       setSearchResults(previousResults);
@@ -301,8 +420,60 @@ export const AppProvider = ({ children }) => {
       setPreviousView(null);
       setPreviousResults([]);
       setPreviousQuery('');
+
+      return true;
     }
-  }, [previousView, previousResults, previousQuery]);
+
+    // Final fallback: if we're not on home, go to home
+    if (selectedShow || searchResults.length > 0 || searchQuery) {
+      // Clear selected show
+      setSelectedShow(null);
+      setShowDetails(null);
+      setSeasonsData([]);
+      setHeatmapData(null);
+      setWatchProviders(null);
+      setShowError(null);
+
+      // Clear search state
+      setSearchQuery('');
+      setSearchResults([]);
+      setSearchError(null);
+
+      return true;
+    }
+
+    return false;
+  }, [navigationIndex, navigationStack, previousView, previousResults, previousQuery, selectedShow, searchResults, searchQuery]);
+
+  // Go forward in navigation history
+  const goForward = useCallback(() => {
+    if (navigationIndex < navigationStack.length - 1) {
+      const nextState = navigationStack[navigationIndex + 1];
+      setNavigationIndex(prev => prev + 1);
+
+      // Restore state
+      setSearchResults(nextState.searchResults || []);
+      setSearchQuery(nextState.searchQuery || '');
+      setSelectedShow(nextState.selectedShow || null);
+      setShowDetails(null);
+      setSeasonsData([]);
+      setHeatmapData(null);
+      setWatchProviders(null);
+      setShowError(null);
+
+      return true;
+    }
+
+    return false;
+  }, [navigationIndex, navigationStack]);
+
+  // Check if can go back/forward
+  const canGoBack = navigationIndex > 0 ||
+                    (previousView && previousResults.length > 0) ||
+                    selectedShow !== null ||
+                    searchResults.length > 0 ||
+                    searchQuery !== '';
+  const canGoForward = navigationIndex < navigationStack.length - 1;
 
   const value = {
     // Search
@@ -328,6 +499,7 @@ export const AppProvider = ({ children }) => {
     showError,
     selectShow,
     resetShow,
+    goHome,
 
     // Heatmap
     heatmapData,
@@ -341,6 +513,9 @@ export const AppProvider = ({ children }) => {
     // Navigation
     previousView,
     goBack,
+    goForward,
+    canGoBack,
+    canGoForward,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

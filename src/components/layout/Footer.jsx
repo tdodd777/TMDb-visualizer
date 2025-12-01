@@ -16,7 +16,7 @@ const Footer = () => {
           </div>
 
           {/* Copyright */}
-          <p>© {new Date().getFullYear()} TV Series Heatmap</p>
+          <p>© {new Date().getFullYear()} ShowGrid</p>
         </div>
       </div>
     </footer>
