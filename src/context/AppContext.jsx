@@ -73,17 +73,23 @@ export const AppProvider = ({ children }) => {
       // Check cache first
       const cached = getCacheSearch(query);
       if (cached) {
-        setSearchResults(cached.results || []);
+        // Sort by popularity (descending) to surface more relevant results
+        // Spread to create a copy - .sort() mutates in place which can cause re-render loops
+        const sortedResults = [...(cached.results || [])].sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+        setSearchResults(sortedResults);
         setIsSearching(false);
         return;
       }
 
       // Fetch from API
       const data = await apiSearchShows(query);
-      setSearchResults(data.results || []);
+      // Sort by popularity (descending) to surface more relevant results
+      // Spread to create a copy - .sort() mutates in place which can cause re-render loops
+      const sortedResults = [...(data.results || [])].sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+      setSearchResults(sortedResults);
 
-      // Cache results
-      setCacheSearch(query, data);
+      // Cache results (sorted)
+      setCacheSearch(query, { ...data, results: sortedResults });
     } catch (error) {
       logger.error('Search error:', error);
       setSearchError(error.message);

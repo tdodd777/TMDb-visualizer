@@ -11,6 +11,11 @@ const SearchBar = () => {
   const debounceTimeout = useRef(null);
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
+  // Track the last query we sent to prevent sync effect from overwriting user input
+  const lastSentQuery = useRef('');
+  // Use ref for searchShows to avoid dependency loop (searchShows changes when searchResults changes)
+  const searchShowsRef = useRef(searchShows);
+  searchShowsRef.current = searchShows;
 
   // Get top suggestions (limit to 8)
   const suggestions = searchResults.slice(0, 8);
@@ -18,8 +23,11 @@ const SearchBar = () => {
   // Sync localQuery with searchQuery when it changes externally (e.g., from browse buttons or back navigation)
   useEffect(() => {
     // Only update localQuery if searchQuery was set externally (not from our own debounced search)
-    if (searchQuery && searchQuery !== localQuery) {
+    // This prevents the bug where typing gets reset after debounce fires
+    const isExternalChange = searchQuery !== lastSentQuery.current;
+    if (searchQuery && searchQuery !== localQuery && isExternalChange) {
       setLocalQuery(searchQuery);
+      lastSentQuery.current = searchQuery;
     }
   }, [searchQuery, localQuery]);
 
@@ -37,8 +45,11 @@ const SearchBar = () => {
     // Set new timeout
     if (localQuery.length >= 2 && !isBrowseQuery) {
       debounceTimeout.current = setTimeout(() => {
+        // Track that this query originated from our component
+        lastSentQuery.current = localQuery;
         setSearchQuery(localQuery);
-        searchShows(localQuery);
+        // Use ref to avoid dependency on searchShows (which changes when searchResults changes)
+        searchShowsRef.current(localQuery);
         setShowSuggestions(true);
         setSelectedIndex(-1);
       }, 500);
@@ -59,7 +70,7 @@ const SearchBar = () => {
         clearTimeout(debounceTimeout.current);
       }
     };
-  }, [localQuery, searchShows, clearSearch, setSearchQuery, searchQuery]);
+  }, [localQuery, clearSearch, setSearchQuery, searchQuery]);
 
   // Auto-focus on mount
   useEffect(() => {
@@ -85,6 +96,7 @@ const SearchBar = () => {
 
   const handleClear = () => {
     setLocalQuery('');
+    lastSentQuery.current = '';
     clearSearch();
     setShowSuggestions(false);
     setSelectedIndex(-1);
@@ -94,6 +106,7 @@ const SearchBar = () => {
   const handleSelectShow = (show) => {
     selectShow(show);
     setLocalQuery('');
+    lastSentQuery.current = '';
     setShowSuggestions(false);
     setSelectedIndex(-1);
   };

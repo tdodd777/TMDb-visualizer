@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { getImageUrl } from '../../services/tmdb';
 import { formatYear, formatRating } from '../../utils/formatters';
@@ -8,19 +8,25 @@ const SearchResults = () => {
   const { searchResults, isSearching, searchError, selectShow, searchQuery } = useApp();
   const [showResults, setShowResults] = useState(false);
   const [resultsKey, setResultsKey] = useState(0);
+  // Track which query we've already animated to prevent double-triggering
+  const lastAnimatedQuery = useRef(null);
 
   // Trigger staggered animation when results are loaded
   useEffect(() => {
-    if (!isSearching && searchResults.length > 0) {
-      // Force animation reset by changing key and resetting showResults
-      setResultsKey(prev => prev + 1);
-      setShowResults(false);
-      const timer = setTimeout(() => setShowResults(true), 50);
-      return () => clearTimeout(timer);
+    if (!isSearching && searchResults.length > 0 && searchQuery) {
+      // Only animate if this is a new search query (prevents flicker from effect running twice)
+      if (lastAnimatedQuery.current !== searchQuery) {
+        lastAnimatedQuery.current = searchQuery;
+        setResultsKey(prev => prev + 1);
+        setShowResults(false);
+        const timer = setTimeout(() => setShowResults(true), 50);
+        return () => clearTimeout(timer);
+      }
     } else if (searchResults.length === 0) {
+      lastAnimatedQuery.current = null;
       setShowResults(false);
     }
-  }, [isSearching, searchResults]);
+  }, [isSearching, searchResults, searchQuery]);
 
   // Return early if no search query - prevents skeleton from showing on homepage
   if (!searchQuery || searchQuery.length < 2) {
